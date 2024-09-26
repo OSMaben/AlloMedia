@@ -47,16 +47,10 @@ const signUp = async (req, res) => {
         const token = jwt.sign(payload, secretKey, { expiresIn: '1h' });
 
         // Prepare the email content
-        const subject = 'Account Has Been Created Successfully';
+        const subject = 'Account Has Been Created Successfully ☺️';
         const baseUrl = `http://localhost:3001/api/Emailverification/${token}`;
-        const bodyMail = `
-            <p>Hello ${name}, we are happy to have you here. Your account has been created successfully.</p>
-            <p>Please click the link below to verify your account:</p>
-            <a href="${baseUrl}"><button>Click Me ;)</button></a>
-            <p>This link will expire in 1 hour, so make sure to verify your account ASAP. Enjoy!</p>
-        `;
 
-        const emailSent = await nodeSends(email, subject, bodyMail);
+        const emailSent = await nodeSends(email, subject, name  , baseUrl);
 
         return res.status(200).json({
             msg: "Account created successfully",
@@ -85,6 +79,7 @@ const signIn = async (req, res) =>{
                 msg:error.details[0].message
             })
         }
+
         const {email , password} = req.body;
 
         const user =await User.findOne({email: email})
@@ -100,7 +95,13 @@ const signIn = async (req, res) =>{
 
         const payload = { userId: user._id };
         console.log('payload is => ', payload);
-        const token = jwt.sign(payload, secretKey, { expiresIn: '1h' });
+        const token = jwt.sign(payload, secretKey, { expiresIn: '1d' });
+
+        //decode without verifying
+        // const decoded  =  jwt.decode(token)
+        // const exctractor = new Date(decoded.exp * 1000);
+        // console.log(exctractor);
+
 
         res.status(200).json({
             token

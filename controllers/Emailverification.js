@@ -3,28 +3,28 @@ const User = require('../models/user');
 
 
 
-
 const VerifyIfUserIsValid = async (req, res) => {
+    try {
+        const userId = req.user.userId;
 
-   try
-   {
-       const UserById = req.user.userId;
+        if (!userId) return res.status(401).send('Token is required.');
 
-       if (!UserById) return res.status(401).send('Token is required');
+        const FindUser = await User.findById(userId);
+        if (!FindUser) return res.status(404).send('User not found.');
 
-       const FindUser = await User.findById(UserById);
-       if (!FindUser) return res.status(401).send('User not found');
+        if (FindUser.isVerified) {
+            return res.status(400).json({ msg: 'User is already verified.' });
+        }
 
-       FindUser.isVerified = true;
-       await FindUser.save();
-       return res.status(200).json({ msg: 'Account successfully verified!' });
+        FindUser.isVerified = true;
+        await FindUser.save();
 
-   }catch (err)
-   {
-       console.log(err);
-       return res.status(401).json({msg:"Token Not Found"});
-   }
+        return res.status(200).json({ msg: 'Account successfully verified!' });
 
+    } catch (err) {
+        console.error('Verification error:', err);
+        return res.status(500).json({ msg: 'Internal server error.' });
+    }
 }
 
 
