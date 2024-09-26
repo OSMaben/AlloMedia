@@ -6,7 +6,7 @@ const mongoose = require('mongoose')
 const fileUpload = require('express-fileupload');
 const cors = require('cors');
 const userRoute = require('./routes/user');
-
+const emailVerification = require('./routes/emailVerification');
 
 
 app.use(bodyParser.json())
@@ -30,7 +30,8 @@ app.get('/', function (req, res) {
   })
 })
 
-app.use('/api', userRoute)
+app.use('/api', userRoute);
+app.use('/api', emailVerification);
 
 
 const PORT = process.env.PORT

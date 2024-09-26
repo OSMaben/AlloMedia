@@ -1,8 +1,12 @@
 const bcrypt = require('bcrypt');
 const User = require('../models/user');
 const { signUpSchema } = require('../helper/validation');
+const {signUpSchemaLogin} = require('../helper/ValidationLogin')
 const jwt = require('jsonwebtoken');
 require('dotenv').config();
+// const nodemailer = require('../helper/nodemailer');
+const nodeSends = require('../helper/nodemailer');
+
 
 const secretKey = process.env.JWT_SECRET;
 
@@ -38,17 +42,34 @@ const signUp = async (req, res) => {
             password: hashPassword
         })
 
+        const payload = { userId: user._id };
+        const secretKey = process.env.JWT_SECRET; // Make sure to use env variable
+        const token = jwt.sign(payload, secretKey, { expiresIn: '1h' });
+
+        // Prepare the email content
+        const subject = 'Account Has Been Created Successfully';
+        const baseUrl = `http://localhost:3001/api/Emailverification/${token}`;
+        const bodyMail = `
+            <p>Hello ${name}, we are happy to have you here. Your account has been created successfully.</p>
+            <p>Please click the link below to verify your account:</p>
+            <a href="${baseUrl}"><button>Click Me ;)</button></a>
+            <p>This link will expire in 1 hour, so make sure to verify your account ASAP. Enjoy!</p>
+        `;
+
+        const emailSent = await nodeSends(email, subject, bodyMail);
+
         return res.status(200).json({
             msg: "Account created successfully",
             data: {
                 user,
+                token,
+                emailSent
             }
         })
 
     } catch (error) {
         return res.status(500).json({
             msg: "Internal server error, please try again",
-
         })
     }
 }
@@ -56,7 +77,7 @@ const signUp = async (req, res) => {
 const signIn = async (req, res) =>{
     try
     {
-        const {error} = signUpSchema.validate(req.body);
+        const {error} = signUpSchemaLogin.validate(req.body);
 
         if(error)
         {
@@ -72,10 +93,9 @@ const signIn = async (req, res) =>{
             msg: "This User Does Not Exist"
         })
 
-
         const  isMatch = await bcrypt.compare(password, user.password);
         if(!isMatch)  return res.status(400).json({
-            msg: 'You Have an error in your password'
+            msg: 'Email Or Password is incorrect'
         })
 
         const payload = { userId: user._id };

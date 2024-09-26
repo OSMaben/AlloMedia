@@ -30,7 +30,11 @@ const userSchema = new mongoose.Schema({
     address: {
         type: String,
         required: true,
-    }
+    },
+    c: {
+        type: Boolean,
+        default: false
+    },
 },
 {
     timestamps: true
