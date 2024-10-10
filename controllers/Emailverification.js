@@ -11,13 +11,13 @@ const VerifyIfUserIsValid = async (req, res) => {
         if (!FindUser) return res.status(404).send('User not found.');
 
         if (FindUser.isVerified) {
-            return res.status(400).json({ msg: 'User is already verified.' });
+            res.redirect('http://localhost:3000/auth/email-confirmation-success');
         }
 
         FindUser.isVerified = true;
         await FindUser.save();
 
-        return res.status(200).json({ msg: 'Account successfully verified!' });
+         res.redirect('http://localhost:3000/auth/email-confirmation-success');
 
     } catch (err) {
         console.error('Verification error:', err);

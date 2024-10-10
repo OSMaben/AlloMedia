@@ -8,7 +8,7 @@ const signUpSchemaLogin = Joi.object()
             .required(),
         password: Joi.string()
             .min(3)
-            .max(12)
+            .max(19)
             .required(),
     })
 
