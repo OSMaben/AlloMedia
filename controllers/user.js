@@ -91,8 +91,22 @@ const signIn = async (req, res) => {
         }
 
         if (!user.isVerified) {
-            return res.status(401).json({ msg: 'Please verify your email before logging in.' });
+            try
+            {
+                const otp = generateOtp(); // Function to generate OTP
+                user.otp = otp;
+                user.otpExpires = Date.now() + 10 * 60 * 1000; // OTP valid for 10 minutes
+                await user.save(); // Save OTP and expiration to the user
+            
+                await sendOtpEmail(user.email, otp); // Send OTP to user
+                return res.status(200).json({ msg: 'OTP sent. Please verify.' });
+            }
+            catch(err)
+            {
+                return res.status(401).json({msg:'Please verify your email before logging in.'})
+            }
         }
+        
 
         const now = new Date();
         const otpExpirationPeriod = 2 * 24 * 60 * 60 * 1000;
@@ -125,7 +139,7 @@ const signIn = async (req, res) => {
         });
 
     } catch (error) {
-        console.error(error);
+        console.log(error);
         return res.status(500).json({ msg: 'An error has been caught!' });
     }
 };
