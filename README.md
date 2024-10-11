@@ -1,4 +1,4 @@
-Clone the repo: git clone https://github.com/Mohdsahil/node-express-backend-articture.git
+Clone the repo: git clone [https://github.com/Mohdsahil/node-express-backend-articture.git](https://github.com/OSMaben/AlloMedia.git)
 
 Install dependencies: npm install
 
